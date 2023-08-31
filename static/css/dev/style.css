@@ -116,3 +116,10 @@ span.search-callsign {
 	width: 95%;
 	height: auto; 
 }
+.select2-container--bootstrap-5.select2-container--open.select2-container--below .select2-selection,
+.select2-container--bootstrap-5 .select2--small.select2-selection {
+	max-width: 370px;
+}
+.select2-container--bootstrap-5 .select2--small.select2-selection {
+	border-radius: 0.375rem !important;
+}

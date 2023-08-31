@@ -297,13 +297,17 @@ function getFilter(id, param, len, qrystr) {
 		let selectedFilter = [].map.call(document.getElementById(id).selectedOptions, option => option.value);
 		let qryFilter = '';
 		if (selectedFilter.length < len || len == -1) {
-			qryFilter = selectedFilter.map(function (el) {
-				if (el) {
-					return param + '=' + el;
-				} else {
-					return '';
-				}
-			}).join('&');
+			if (id !== "dxcalls") {
+				qryFilter = selectedFilter.map(function (el) {
+					if (el) {
+						return param + '=' + el;
+					} else {
+						return '';
+					}
+				}).join('&');
+			} else {
+				qryFilter = param + '=' + selectedFilter.join(',');
+			}
 			qrystr = qrystr.concat('&'.concat(qryFilter));
 			if (qrystr.substring(0, 1) == '&') {
 				qrystr = qrystr.substring(1);
@@ -331,6 +335,7 @@ function refresh_timer() {
 	let qryAll = '';
 
 	//get other filters
+	qryAll = getFilter('dxcalls', 'c', 14, qryAll);
 	qryAll = getFilter('band', 'b', 14, qryAll);
 	qryAll = getFilter('de_re', 'e', 7, qryAll);
 	qryAll = getFilter('dx_re', 'x', 7, qryAll);

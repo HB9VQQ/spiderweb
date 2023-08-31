@@ -74,23 +74,31 @@ def find_id_json(json_object, name):
 
 def query_build_callsign(callsign):
 
-    query_string = ""
-    if len(callsign) <= 14:
-        query_string = (
-            "(SELECT rowid, spotter AS de, freq, spotcall AS dx, comment AS comm, time, spotdxcc from spot WHERE spotter='"
-            + callsign
-            + "'"
-        )
-        query_string += " ORDER BY rowid desc limit 10)"
-        query_string += " UNION "
-        query_string += (
-            "(SELECT rowid, spotter AS de, freq, spotcall AS dx, comment AS comm, time, spotdxcc from spot WHERE spotcall='"
-            + callsign
-            + "'"
-        )
-        query_string += " ORDER BY rowid desc limit 10);"
-    else:
-        logging.warning("callsign too long")
+    # query_string = ""
+    # if len(callsign) <= 14:
+    last_rowid = request.args.get("lr")
+    if last_rowid is None:
+            last_rowid = "0"
+    if not last_rowid.isnumeric():
+        last_rowid = 0
+    items = callsign.split(",")
+    search_string = "','".join(items)
+    search_string = "'" + search_string + "'"
+    # query_string = (
+    #     "(SELECT rowid, spotter AS de, freq, spotcall AS dx, comment AS comm, time, spotdxcc from spot WHERE spotter=("
+    #     + search_string
+    #     + ""
+    # )
+    # query_string += " ORDER BY rowid desc limit 10)"
+    # query_string += " UNION "
+    query_string = (
+        "(SELECT rowid, spotter AS de, freq, spotcall AS dx, comment AS comm, time, spotdxcc from spot WHERE rowid > " + last_rowid + " && spotcall IN ("
+        + search_string
+        + ")"
+    )
+    query_string += " ORDER BY rowid desc limit 50);"
+    # else:
+    #     logging.warning("callsign too long")
     return query_string
 
 
@@ -99,6 +107,7 @@ def query_build():
     try:
         # get url parameters
         last_rowid = request.args.get("lr")  # Last rowid fetched by front end
+        callsign = request.args.get("c")  # search specific callsign
         band = request.args.getlist("b")  # band filter
         dere = request.args.getlist("e")  # DE continent filter
         dxre = request.args.getlist("x")  # Dx continent filter
@@ -107,6 +116,11 @@ def query_build():
         dxcq = request.args.getlist("qx")  # DX cq zone filter
 
         query_string = ""
+
+        items = callsign.split(",")
+        search_string = "','".join(items)
+        search_string = "'" + search_string + "'"
+        callsign_qry_string = " AND (spotcall IN (" + search_string + "))"
 
         # construct band query decoding frequencies with json file
         band_qry_string = " AND (("
@@ -179,6 +193,9 @@ def query_build():
             + last_rowid
         )
 
+        if callsign:
+            query_string += callsign_qry_string
+            
         if len(band) > 0:
             query_string += band_qry_string
 
@@ -213,12 +230,13 @@ def query_build():
 def spotquery():
     try:
 
-        callsign = request.args.get("c")  # search specific callsign
+        # callsign = request.args.get("c")  # search specific callsign
 
-        if callsign:
-            query_string = query_build_callsign(callsign)
-        else:
-            query_string = query_build()
+        # if callsign:
+        #     query_string = query_build_callsign(callsign)
+        # else:
+        #     query_string = query_build()
+        query_string = query_build()
 
         qm.qry(query_string)
         data = qm.get_data()
@@ -246,6 +264,21 @@ def spotquery():
     except Exception as e:
         logger.error(e)
 
+def get_dx_calls():
+    try:
+        query_string = "SELECT * FROM (SELECT spotcall AS dx FROM spot ORDER BY rowid DESC LIMIT 0, 500) sub1 GROUP BY dx"
+        qm.qry(query_string)
+        data = qm.get_data()
+        row_headers = qm.get_headers()
+
+        payload = []
+        for result in data:
+            main_result = dict(zip(row_headers, result))
+            payload.append(main_result["dx"])
+
+        return payload
+    except Exception as e:
+        return []
 
 # find adxo events
 adxo_events = None
@@ -300,6 +333,7 @@ def spots():
             adxo_events=adxo_events,
             continents=continents_cq,
             bands=band_frequencies,
+            dx_calls=get_dx_calls(),
         )
     )
     return response

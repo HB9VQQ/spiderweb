@@ -2,15 +2,15 @@
 
 <head>
 	{% block title %}
-	<title>HB9VQQ DX Cluster / DX Spots for Hamradio</title>
+	<title>DX Cluster / DX Spot for Hamradio</title>
 	{% endblock %}
 	{% block head %}
 	{{ super() }}
 	{% endblock %}
 </head>
 {% block titles %}
-<h1 class="display-4 text-white">HB9VQQ DX Cluster</h1>
-<p class="lead text-light">Stop Cluster Spam</p>
+<h1 class="display-4 text-white">WEB DX Cluster</h1>
+<p class="lead text-light">Spots list</p>
 {% endblock %}
 {% block filters %}
 <div class="row mx-auto justify-content-between align-middle">
@@ -26,13 +26,6 @@
 	<div class="col-md-auto ml-2 collapse rounded-sm shadow mb-5 bg-body" id="collapseFilters">
 		<form method="POST" id="form-filters" enctype="multipart/form-data">
 			<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-			<strong>DX Call(s)</strong>
-			<select class="form-select" id="dxcalls" data-placeholder="Choose anything" multiple>
-				{% for item in dx_calls %}
-				<option>{{item}}</option>
-				{% endfor %}
-			</select>
-			<p></p>
 			<strong>Band</strong>
 			<select class="form-select overflow-hidden" id="band" size="14" multiple>
 				{% for dict_item in bands['bands']|reverse %}
@@ -185,7 +178,7 @@
 		<table id="spotsTable" class="table table-striped table-sm text-responsive table-borderless table-hover">
 			<thead>
 				<tr>
-					<th scope="col">Spotter</th>
+					<th scope="col">DE</th>
 					<th scope="col">Freq</th>
 					<th scope="col">DX</th>
 					<th scope="col"></th>
