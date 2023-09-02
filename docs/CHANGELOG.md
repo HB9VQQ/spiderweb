@@ -1,5 +1,5 @@
 ### Change log
-Date: 30/08/2023 
+Date: 02/09/2023 
 Release: 
 - changed cache-control header
 - fixed Layout scrolling (SEO)

@@ -15,8 +15,9 @@
 	"telnet":"mysite:7300",
         "menu": {
           "menu_list": [
-            {"label":"Charts & stats", "link": "/plots.html", "external": false},
-            {"label":"Sources", "link": "https://github.com/coulisse/spiderweb/" , "external": true},    
+            {"label":"HF Propagation", "link": "/propagation.html", "external": false},
+            {"label":"Charts & Stats", "link": "/plots.html", "external": false},
+            {"label":"Info", "link": "https://hb9vqq-dxcluster.carrd.co/" , "external": true},    
             {"label":"Cookies", "link": "/cookies.html", "external": false},
             {"label":"Privacy", "link": "/privacy.html", "external": false}
             ]

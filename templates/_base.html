@@ -6,8 +6,8 @@
 	{% endblock title %}
 	{% block head %}
 	<meta charset="utf-8">
-	<meta name="description" content="HB9VQQ Ham Radio DX Cluster and spot search">
-	<meta name="author" content="Roland - HB9VQQ">
+	<meta name="description" content="{{ mycallsign }} Ham Radio DX Cluster and spot search">
+	<meta name="author" content="Roland - {{ mycallsign }}">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="theme-color" content="#2196f3">
 	<link rel="icon" href="/static/images/icons/favicon.ico">
@@ -78,10 +78,14 @@
 		<div class="ipcs bg-light p-4 rounded-lg m-2">
 			{% block titles %}
 			{% endblock %}
+			{% if page == "propagation": %}
+			<p class="text-light">For more Solar and Ham Radio Propagation Data click <a href="https://grafana.gafner.net/goto/56yon5zSg?orgId=1" class="text-white" target="_blank">here</a></p>
+			{% else %}
 			<p class="text-light">Spot submission requires Registration <a
 					href="mailto:{{ mail }}?Subject=HB9VQQ%20DxCluster%20Registration" target="_top" class="text-white">{{
 					mail }}</a></p>
 			<p class="text-light">Telnet access: <a href="telnet://{{ telnet }}" class="text-white">{{ telnet }}</a></p>
+			{% endif %}
 		</div>
 		{% block filters %}
 		{% endblock filters %}

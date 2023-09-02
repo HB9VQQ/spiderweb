@@ -323,6 +323,7 @@ def spots():
     response = flask.Response(
         render_template(
             "index.html",
+            page='index',
             inline_script_nonce=get_nonce(),
             mycallsign=cfg["mycallsign"],
             telnet=cfg["telnet"],
@@ -352,12 +353,28 @@ def root():
 def world_data():
     return app.send_static_file("data/world.json")
 
+@app.route("/propagation.html", methods=["GET"])
+def propagation():
+    response = flask.Response(
+        render_template(
+            "propagation.html",
+            page='propagation',
+            inline_script_nonce=get_nonce(),          
+            mycallsign=cfg["mycallsign"],
+            telnet=cfg["telnet"],
+            mail=cfg["mail"],
+            menu_list=cfg["menu"]["menu_list"],
+        )
+    )
+    return response
+
 @app.route("/plots.html")
 def plots():
     whoj = who_is_connected()
     response = flask.Response(
         render_template(
             "plots.html",
+            page='plots',
             inline_script_nonce=get_nonce(),          
             mycallsign=cfg["mycallsign"],
             telnet=cfg["telnet"],
@@ -376,6 +393,7 @@ def cookies():
     response = flask.Response(
         render_template(
             "cookies.html",
+            page='cookies',
             inline_script_nonce=get_nonce(),          
             mycallsign=cfg["mycallsign"],
             telnet=cfg["telnet"],
@@ -391,6 +409,7 @@ def privacy():
     response = flask.Response(
         render_template(
             "privacy.html",
+            page='privacy',
             inline_script_nonce=get_nonce(),          
             mycallsign=cfg["mycallsign"],
             telnet=cfg["telnet"],
@@ -413,6 +432,7 @@ def callsign():
     response = flask.Response(
         render_template(
             "callsign.html",
+            page='callsign',
             inline_script_nonce=get_nonce(),              
             mycallsign=cfg["mycallsign"],
             telnet=cfg["telnet"],
@@ -516,8 +536,8 @@ def add_security_headers(resp):
     object-src 'none';base-uri 'self';\
     connect-src 'self' cdn.jsdelivr.net cdnjs.cloudflare.com sidc.be;\
     font-src 'self' cdn.jsdelivr.net;\
-    frame-src 'self';\
-    frame-ancestors 'none';\
+    frame-src https://grafana.gafner.net https://muf.hb9vqq.ch;\
+    frame-ancestors https://grafana.gafner.net https://muf.hb9vqq.ch;\
     form-action 'none';\
     img-src 'self' data: cdnjs.cloudflare.com sidc.be;\
     manifest-src 'self';\
