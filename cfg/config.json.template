@@ -8,7 +8,7 @@
         "timer":{
                         "interval":30000
         },
-	"mycallsign":"XXXXXX",
+	"mycallsign":"HB9VQQ",
     "mail":"foo@bar.com",
     "mail_token": "foobar",
     "enable_cq_filter":"n",
