@@ -112,6 +112,8 @@ def query_build():
         dere = request.args.getlist("e")  # DE continent filter
         dxre = request.args.getlist("x")  # Dx continent filter
         mode = request.args.getlist("m")  # mode filter
+        exclft8 = request.args.getlist("exclft8")  # Mode DIGI explode FT8
+        exclft8 = exclft8[0]
         decq = request.args.getlist("qe")  # DE cq zone filter
         dxcq = request.args.getlist("qx")  # DX cq zone filter
 
@@ -137,8 +139,13 @@ def query_build():
 
         # construct mode query
         mode_qry_string = " AND  (("
+        if len(mode) == 0 and exclft8 == "true":
+            mode = ['cw', 'phone', 'digi']
         for i, item_mode in enumerate(mode):
-            single_mode = find_id_json(modes_frequencies["modes"], item_mode)
+            if item_mode == "digi" and exclft8 == "true":
+                single_mode = find_id_json(modes_frequencies["modes"], "digi-exclft8")
+            else:
+                single_mode = find_id_json(modes_frequencies["modes"], item_mode)
             if i > 0:
                 mode_qry_string += ") OR ("
             for j in range(len(single_mode["freq"])):
@@ -150,8 +157,10 @@ def query_build():
                     + " AND "
                     + str(single_mode["freq"][j]["max"])
                 )
+        mode_qry_string += "))"       
 
-        mode_qry_string += "))"
+        if exclft8 == "true":
+            mode_qry_string += " AND (comment NOT LIKE '%FT8%')"
 
         # construct DE continent region query
         dere_qry_string = " AND spottercq IN ("
@@ -220,7 +229,7 @@ def query_build():
     except Exception as e:
         logger.error(e)
         query_string = ""
-
+        
     return query_string
 
 
@@ -237,9 +246,9 @@ def spotquery():
         # else:
         #     query_string = query_build()
         query_string = query_build()
-
         qm.qry(query_string)
         data = qm.get_data()
+        
         row_headers = qm.get_headers()
 
         logger.debug("query done")

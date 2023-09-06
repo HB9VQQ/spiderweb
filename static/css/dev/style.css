@@ -197,3 +197,9 @@ span.search-callsign {
 		width: 100%;
 	}
 }
+.excl-container {
+	padding: .375rem 2.25rem .375rem .75rem;
+}
+.excl-container input {
+	margin-right: .375rem;
+}

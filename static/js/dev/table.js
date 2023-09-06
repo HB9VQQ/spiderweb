@@ -343,6 +343,9 @@ function refresh_timer() {
 	qryAll = getFilter('cqdeInput', 'qe', -1, qryAll);
 	qryAll = getFilter('cqdxInput', 'qx', -1, qryAll);
 
+	var exclft8 = $('#exclft8').prop("checked") ? "true" : "false";
+	qryAll += '&exclft8=' + exclft8;
+
 	//Composing query string
 	let qryString;
 
@@ -357,7 +360,6 @@ function refresh_timer() {
 	if (qryAll) {
 		qryString = qryString.concat('&'.concat(qryAll));
 	}
-
 
 	//Open a new connection, using the GET request on the URL endpoint
 	qryString=qryString.concat('&'.concat(Math.random()));   //used to prevent caching
