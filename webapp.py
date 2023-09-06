@@ -114,6 +114,8 @@ def query_build():
         mode = request.args.getlist("m")  # mode filter
         exclft8 = request.args.getlist("exclft8")  # Mode DIGI explode FT8
         exclft8 = exclft8[0]
+        exclft4 = request.args.getlist("exclft4")  # Mode DIGI explode FT4
+        exclft4 = exclft4[0]
         decq = request.args.getlist("qe")  # DE cq zone filter
         dxcq = request.args.getlist("qx")  # DX cq zone filter
 
@@ -139,13 +141,8 @@ def query_build():
 
         # construct mode query
         mode_qry_string = " AND  (("
-        if len(mode) == 0 and exclft8 == "true":
-            mode = ['cw', 'phone', 'digi']
         for i, item_mode in enumerate(mode):
-            if item_mode == "digi" and exclft8 == "true":
-                single_mode = find_id_json(modes_frequencies["modes"], "digi-exclft8")
-            else:
-                single_mode = find_id_json(modes_frequencies["modes"], item_mode)
+            single_mode = find_id_json(modes_frequencies["modes"], item_mode)
             if i > 0:
                 mode_qry_string += ") OR ("
             for j in range(len(single_mode["freq"])):
@@ -159,8 +156,33 @@ def query_build():
                 )
         mode_qry_string += "))"       
 
+        ft8_qry_string = " AND ("
         if exclft8 == "true":
-            mode_qry_string += " AND (comment NOT LIKE '%FT8%')"
+            ft8_qry_string += "(comment NOT LIKE '%FT8%')"
+            single_mode = find_id_json(modes_frequencies["modes"], "digi-ft8")
+            for j in range(len(single_mode["freq"])):
+                ft8_qry_string += (
+                    " AND (freq NOT BETWEEN "
+                    + str(single_mode["freq"][j]["min"])
+                    + " AND "
+                    + str(single_mode["freq"][j]["max"])
+                    + ")"
+                )
+        ft8_qry_string += ")" 
+
+        ft4_qry_string = " AND ("
+        if exclft4 == "true":
+            ft4_qry_string += "(comment NOT LIKE '%FT4%')"
+            single_mode = find_id_json(modes_frequencies["modes"], "digi-ft4")
+            for j in range(len(single_mode["freq"])):
+                ft4_qry_string += (
+                    " AND (freq NOT BETWEEN "
+                    + str(single_mode["freq"][j]["min"])
+                    + " AND "
+                    + str(single_mode["freq"][j]["max"])
+                    + ")"
+                )
+        ft4_qry_string += ")" 
 
         # construct DE continent region query
         dere_qry_string = " AND spottercq IN ("
@@ -210,6 +232,12 @@ def query_build():
 
         if len(mode) > 0:
             query_string += mode_qry_string
+
+        if exclft8 == "true":
+            query_string += ft8_qry_string
+
+        if exclft4 == "true":
+            query_string += ft4_qry_string
 
         if len(dere) > 0:
             query_string += dere_qry_string

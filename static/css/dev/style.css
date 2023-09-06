@@ -203,3 +203,6 @@ span.search-callsign {
 .excl-container input {
 	margin-right: .375rem;
 }
+.excl-container label {
+	margin-right: .75rem;
+}

@@ -346,6 +346,9 @@ function refresh_timer() {
 	var exclft8 = $('#exclft8').prop("checked") ? "true" : "false";
 	qryAll += '&exclft8=' + exclft8;
 
+	var exclft4 = $('#exclft4').prop("checked") ? "true" : "false";
+	qryAll += '&exclft4=' + exclft4;
+
 	//Composing query string
 	let qryString;
 

@@ -17,13 +17,13 @@ window.onload = () => {
 document.getElementById('MyClockDisplay').addEventListener('load',showTime());
 
 $(document).ready(function() {
-    var filterIds = ["dxcalls","band", "mode", "exclft8","de_re", "dx_re", "cqdeInput", "cqdeInput", "cqdxInput"];
+    var filterIds = ["dxcalls","band", "mode", "exclft8", "exclft4","de_re", "dx_re", "cqdeInput", "cqdeInput", "cqdxInput"];
     filterIds.forEach(function(filterId) {
         var $thisFilter = $('#' + filterId);
         var thisKey = 'filter:' + filterId;
         var value = Cookies.get(thisKey);
         if (value) {
-            if (filterId === "exclft8") {
+            if (filterId === "exclft8" || filterId === "exclft4") {
                 $thisFilter.prop("checked", value === "true");
             } else {
                 $thisFilter.val(JSON.parse(value));
@@ -41,7 +41,7 @@ $(document).ready(function() {
             } );
         }
         $thisFilter.change(function() {
-            Cookies.set(thisKey, filterId === "exclft8" ? $(this).prop("checked") ? "true" : "false" : JSON.stringify($(this).val()));
+            Cookies.set(thisKey, filterId === "exclft8" || filterId === "exclft4" ? $(this).prop("checked") ? "true" : "false" : JSON.stringify($(this).val()));
         })
     })
     refresh_timer();
