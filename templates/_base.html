@@ -76,16 +76,50 @@
 	</header>
 	<div class="container-fluid mt-1 ml-0 mr-0 px-0">
 		<div class="ipcs bg-light p-4 rounded-lg m-2">
-			{% block titles %}
-			{% endblock %}
-			{% if page == "propagation": %}
-			<p class="text-light">For more Solar and Ham Radio Propagation Data click <a href="https://grafana.gafner.net/goto/56yon5zSg?orgId=1" class="text-white" target="_blank">here</a></p>
-			{% else %}
-			<p class="text-light">Spot submission requires Registration <a
-					href="mailto:{{ mail }}?Subject=HB9VQQ%20DxCluster%20Registration" target="_top" class="text-white">{{
-					mail }}</a></p>
-			<p class="text-light">Telnet access: <a href="telnet://{{ telnet }}" class="text-white">{{ telnet }}</a></p>
-			{% endif %}
+			<div class="row">
+				<div class="col-lg-6">
+					{% block titles %}
+					{% endblock %}
+					{% if page == "propagation": %}
+					<p class="text-light">For more Solar and Ham Radio Propagation Data click <a href="https://grafana.gafner.net/goto/56yon5zSg?orgId=1" class="text-white" target="_blank">here</a></p>
+					{% else %}
+					<p class="text-light">Spot submission requires Registration <a
+							href="mailto:{{ mail }}?Subject=HB9VQQ%20DxCluster%20Registration" target="_top" class="text-white">{{
+							mail }}</a></p>
+					<p class="text-light">Telnet access: <a href="telnet://{{ telnet }}" class="text-white">{{ telnet }}</a></p>
+					{% endif %}
+				</div>
+				<div class="col-lg-6">
+					{% if page == "index": %}
+						<div class="heatmap-container">
+							<div class="heatmap-left">
+								<h5 class="heatmap-title">Band Activity</h5>
+								<h6 class="heatmap-select-continent">Your Continent is
+									<select id="heatmapContinent" class="form-control selectContinent btn-default heatmap">
+										<option value="EU">Europe</option>
+										<option value="NA">N. America</option>
+										<option value="SA">S. America</option>
+										<option value="AS">Asia</option>
+										<option value="AF">Africa</option>
+										<option value="OC">Oceania</option>
+										<option value="AN">Antarctica</option>
+									</select>
+								</h6>
+								<p id="heatmapLegendtext">Based on all reported Cluster Spots from/of Europe during the last 60 minutes, shown by Continent and Band</p>
+							</div>
+							<div class="heatmap-right">
+								<div id="heatmapContainer">
+									<div id="heatmapArea" class="loading">	
+										<img src="/static/images/ajax-loader-small.gif" height="32" width="32" id="heatmap-ajaxloader" class="hidden">
+										<canvas class="heatmap-canvas" width="315" height="220" style="position: absolute; left: 0px; top: 0px;"></canvas>
+									</div>
+									<img src="/static/images/heatmap_legend2.png" height="206px" width="32px" id="heatmap-legend">
+								</div>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
 		</div>
 		{% block filters %}
 		{% endblock filters %}

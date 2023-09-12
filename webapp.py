@@ -13,6 +13,8 @@ from lib.adxo import get_adxo_events
 from lib.qry import query_manager
 from lib.cty import prefix_table
 from lib.plot_data_provider import ContinentsBandsProvider, SpotsPerMounthProvider, SpotsTrend, HourBand, WorldDxSpotsLive
+import calendar
+import time
 
 
 logging.config.fileConfig("cfg/webapp_log_config.ini", disable_existing_loggers=True)
@@ -54,6 +56,10 @@ with open("cfg/modes.json") as json_modes:
 # load continents-cq file
 with open("cfg/continents.json") as json_continents:
     continents_cq = json.load(json_continents)
+    
+# load heatmap file
+with open("cfg/heatmap.json") as json_heatmap:
+    heatmap_data = json.load(json_heatmap)
 
 # read and set default for enabling cq filter
 if cfg.get("enable_cq_filter"):
@@ -316,6 +322,61 @@ def get_dx_calls():
         return payload
     except Exception as e:
         return []
+    
+def heatmapquery():
+    try:
+
+        de = request.args.getlist("c")  # DE continent filter
+        de = de[0]
+        
+        query_string = "SELECT continent, band, COUNT(*) AS `count` FROM ("
+        query_string += "SELECT spotter, continent, band FROM ("
+        query_string += "SELECT spotter, "
+
+        query_string += "CASE "
+        for obj in continents_cq["continents"]:
+            query_string += "WHEN spotcq IN (" + obj["cq"] + ")" + " THEN '" + obj["id"] + "' "    
+        query_string += "END AS continent, "
+
+        query_string += "CASE "
+        for obj in heatmap_data["bands"]:
+            query_string += "WHEN freq BETWEEN " + str(obj["min"]) + " AND " + str(obj["max"]) + " THEN '" + obj["id"] + "' "    
+        query_string += "END AS band "
+
+        query_string += "FROM spot WHERE "
+        
+        current_GMT = time.gmtime()
+        time_stamp = calendar.timegm(current_GMT)
+        time_stamp = time_stamp - 60 * 60
+        query_string += "time >= " + str(time_stamp) + " && "
+
+        query_string += "spottercq IN ("
+        continent = find_id_json(continents_cq["continents"], de)
+        query_string += str(continent["cq"])
+        query_string += ")) sub1 WHERE continent IS NOT NULL && band IS NOT NULL GROUP BY spotter) sub2 GROUP BY continent, band"
+
+        qm.qry(query_string)
+        data = qm.get_data()
+        row_headers = qm.get_headers()
+
+        payload = []
+        maxValue = 0
+        for result in data:
+            row = dict(zip(row_headers, result))
+            payload.append({
+                "x": heatmap_data["x"][row["band"]],
+                "y": heatmap_data["y"][row["continent"]],
+                "value": row["count"]
+            })
+            if maxValue < row["count"]:
+                maxValue = row["count"]
+        payload.append({
+            "max": maxValue
+        })
+
+        return payload
+    except Exception as e:
+        logger.error(e)
 
 # find adxo events
 adxo_events = None
@@ -340,6 +401,11 @@ geo_graph_wdsl = WorldDxSpotsLive(logger, qm, pfxt)
 @app.route("/spotlist", methods=["GET"])
 def spotlist():
     response = flask.Response(json.dumps(spotquery()))
+    return response
+
+@app.route("/heatmap", methods=["GET"])
+def heatmap():
+    response = flask.Response(json.dumps(heatmapquery()))
     return response
 
 
@@ -568,7 +634,7 @@ def add_security_headers(resp):
     
     resp.headers["Content-Security-Policy"] = "\
     default-src 'self';\
-    script-src 'self' cdnjs.cloudflare.com cdn.jsdelivr.net 'nonce-"+inline_script_nonce+"';\
+    script-src 'self' cdnjs.cloudflare.com cdn.jsdelivr.net 'nonce-"+inline_script_nonce+"' https://www.gstatic.com;\
     style-src 'self' cdnjs.cloudflare.com cdn.jsdelivr.net 'unsafe-inline';\
     object-src 'none';base-uri 'self';\
     connect-src 'self' cdn.jsdelivr.net cdnjs.cloudflare.com sidc.be;\
